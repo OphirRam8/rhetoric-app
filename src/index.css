@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #1a1a2e;
+  --color-parchment: #f5f0e8;
+  --color-parchment-dark: #e8e0d0;
+  --color-gold: #c9a84c;
+  --color-gold-dark: #a8893a;
+  --color-ethos: #4a6fa5;
+  --color-ethos-light: #6b8fc5;
+  --color-pathos: #c75146;
+  --color-pathos-light: #e07066;
+  --color-logos: #2a9d8f;
+  --color-logos-light: #4abfb1;
+  --color-correct: #22c55e;
+  --color-wrong: #ef4444;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-parchment);
+  color: var(--color-ink);
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+.card-flip {
+  perspective: 1000px;
+}
+
+.card-flip-inner {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.card-flip-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+  backface-visibility: hidden;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(201, 168, 76, 0); }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.4s ease-out;
+}
+
+.animate-pulse-gold {
+  animation: pulse-gold 2s infinite;
+}
+
+.progress-ring {
+  transition: stroke-dashoffset 0.5s ease;
+}
