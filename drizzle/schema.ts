@@ -1,20 +1,19 @@
-import { mysqlTable, varchar, text, timestamp, json, uniqueIndex } from "drizzle-orm/mysql-core";
+import { sqliteTable, text, integer, uniqueIndex } from "drizzle-orm/sqlite-core";
 import * as crypto from "crypto";
 
-export const users = mysqlTable("users", {
-  id: varchar("id", { length: 36 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
-  email: varchar("email", { length: 320 }).notNull().unique(),
+export const users = sqliteTable("users", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  email: text("email").notNull().unique(),
   name: text("name").notNull(),
   passwordHash: text("passwordHash").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: integer("createdAt", { mode: "timestamp" }).$defaultFn(() => new Date()),
 });
 
-export const progress = mysqlTable("progress", {
-  id: varchar("id", { length: 36 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
-  userId: varchar("userId", { length: 36 }).notNull().references(() => users.id, { onDelete: "cascade" }),
-  data: json("data").notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+export const progress = sqliteTable("progress", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  data: text("data", { mode: "json" }).notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).$defaultFn(() => new Date()),
 }, (table) => ({
   userIdx: uniqueIndex("progress_user_idx").on(table.userId),
 }));

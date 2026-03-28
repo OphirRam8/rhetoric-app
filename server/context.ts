@@ -21,6 +21,6 @@ export async function createContext(opts: CreateExpressContextOptions): Promise<
     return { req: opts.req, res: opts.res, user: null };
   }
 
-  const user = await getUserById(payload.userId);
+  const user = getUserById(payload.userId);
   return { req: opts.req, res: opts.res, user: user || null };
 }

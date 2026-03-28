@@ -3,8 +3,8 @@ import { router, protectedProcedure } from "../trpc";
 import { getProgress, saveProgress } from "../db";
 
 export const progressRouter = router({
-  load: protectedProcedure.query(async ({ ctx }) => {
-    return await getProgress(ctx.user.id);
+  load: protectedProcedure.query(({ ctx }) => {
+    return getProgress(ctx.user.id);
   }),
 
   save: protectedProcedure
@@ -16,8 +16,8 @@ export const progressRouter = router({
         chaptersRead: z.record(z.any()).optional(),
       }),
     }))
-    .mutation(async ({ ctx, input }) => {
-      await saveProgress(ctx.user.id, input.data);
+    .mutation(({ ctx, input }) => {
+      saveProgress(ctx.user.id, input.data);
       return { success: true };
     }),
 });

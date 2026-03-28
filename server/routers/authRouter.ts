@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, publicProcedure, protectedProcedure } from "../trpc";
+import { router, publicProcedure } from "../trpc";
 import { getUserByEmail, createUser } from "../db";
 import { hashPassword, verifyPassword, createSessionToken } from "../auth";
 import { getSessionCookieOptions } from "../cookies";
@@ -16,13 +16,13 @@ export const authRouter = router({
       name: z.string().min(1),
     }))
     .mutation(async ({ ctx, input }) => {
-      const existing = await getUserByEmail(input.email);
+      const existing = getUserByEmail(input.email);
       if (existing) {
         throw new TRPCError({ code: "CONFLICT", message: "Email already registered" });
       }
 
       const passwordHash = await hashPassword(input.password);
-      const user = await createUser({ email: input.email, name: input.name, passwordHash });
+      const user = createUser({ email: input.email, name: input.name, passwordHash });
       const token = await createSessionToken(user.id);
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.cookie(COOKIE_NAME, token, { ...cookieOptions, maxAge: THIRTY_DAYS_MS });
@@ -36,7 +36,7 @@ export const authRouter = router({
       password: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
-      const user = await getUserByEmail(input.email);
+      const user = getUserByEmail(input.email);
       if (!user) {
         throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid email or password" });
       }
@@ -53,13 +53,13 @@ export const authRouter = router({
       return { id: user.id, email: user.email, name: user.name };
     }),
 
-  logout: publicProcedure.mutation(async ({ ctx }) => {
+  logout: publicProcedure.mutation(({ ctx }) => {
     const cookieOptions = getSessionCookieOptions(ctx.req);
     ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
     return { success: true };
   }),
 
-  me: publicProcedure.query(async ({ ctx }) => {
+  me: publicProcedure.query(({ ctx }) => {
     if (!ctx.user) return null;
     return { id: ctx.user.id, email: ctx.user.email, name: ctx.user.name };
   }),

@@ -1,11 +1,10 @@
-import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
   out: "./drizzle/migrations",
   schema: "./drizzle/schema.ts",
-  dialect: "mysql",
+  dialect: "sqlite",
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
+    url: process.env.DATABASE_URL || "./data/rhetoric.db",
   },
 });
