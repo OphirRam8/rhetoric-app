@@ -4,5 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: '/rhetoric-app/',
+  build: {
+    outDir: 'dist/public',
+  },
 })

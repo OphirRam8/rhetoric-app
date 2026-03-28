@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useProgress } from './hooks/useProgress';
+import { trpc } from './lib/trpc';
 import Navigation from './components/Navigation';
 import HomePage from './components/HomePage';
 import LearnPage from './components/LearnPage';
@@ -7,9 +8,22 @@ import FlashcardsPage from './components/FlashcardsPage';
 import QuizPage from './components/QuizPage';
 import ScenariosPage from './components/ScenariosPage';
 import ReferencePage from './components/ReferencePage';
+import AuthPage from './components/AuthPage';
 
 function App() {
   const [activeTab, setActiveTab] = useState('home');
+  const [showAuth, setShowAuth] = useState(false);
+
+  const { data: user, isLoading: authLoading } = trpc.auth.me.useQuery();
+  const utils = trpc.useUtils();
+  const logoutMutation = trpc.auth.logout.useMutation({
+    onSuccess: () => {
+      utils.auth.me.invalidate();
+    },
+  });
+
+  const isLoggedIn = !!user;
+
   const {
     progress,
     markFlashcardSeen,
@@ -17,12 +31,10 @@ function App() {
     markScenarioCompleted,
     markChapterRead,
     getOverallStats,
-  } = useProgress();
+  } = useProgress(isLoggedIn);
 
-  // Keyboard shortcuts for flashcards
   const handleKeyDown = useCallback((e) => {
     if (activeTab !== 'flashcards') return;
-    // The FlashcardsPage handles its own keyboard nav via this event
   }, [activeTab]);
 
   useEffect(() => {
@@ -31,6 +43,10 @@ function App() {
   }, [handleKeyDown]);
 
   const stats = getOverallStats();
+
+  if (showAuth && !isLoggedIn) {
+    return <AuthPage onSuccess={() => setShowAuth(false)} />;
+  }
 
   const renderPage = () => {
     switch (activeTab) {
@@ -53,7 +69,13 @@ function App() {
 
   return (
     <div className="min-h-screen">
-      <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <Navigation
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        user={user}
+        onLogin={() => setShowAuth(true)}
+        onLogout={() => logoutMutation.mutate()}
+      />
       <main className="pb-20">
         {renderPage()}
       </main>

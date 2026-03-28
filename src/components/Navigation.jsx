@@ -9,7 +9,7 @@ const tabs = [
   { id: 'reference', label: 'Reference', icon: '📜' },
 ];
 
-export default function Navigation({ activeTab, onTabChange }) {
+export default function Navigation({ activeTab, onTabChange, user, onLogin, onLogout }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -42,13 +42,34 @@ export default function Navigation({ activeTab, onTabChange }) {
             ))}
           </div>
 
-          {/* Mobile hamburger */}
-          <button
-            className="md:hidden text-2xl cursor-pointer"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            {menuOpen ? '✕' : '☰'}
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Auth button - desktop */}
+            <div className="hidden md:block">
+              {user ? (
+                <button
+                  onClick={onLogout}
+                  className="text-sm text-parchment/70 hover:text-parchment cursor-pointer"
+                >
+                  {user.name} · Sign Out
+                </button>
+              ) : (
+                <button
+                  onClick={onLogin}
+                  className="text-sm px-3 py-1.5 rounded bg-gold/20 text-gold hover:bg-gold/30 cursor-pointer"
+                >
+                  Sign In
+                </button>
+              )}
+            </div>
+
+            {/* Mobile hamburger */}
+            <button
+              className="md:hidden text-2xl cursor-pointer"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? '✕' : '☰'}
+            </button>
+          </div>
         </div>
 
         {/* Mobile menu */}
@@ -68,6 +89,23 @@ export default function Navigation({ activeTab, onTabChange }) {
                 {tab.label}
               </button>
             ))}
+            <div className="border-t border-white/10 mt-1 pt-1">
+              {user ? (
+                <button
+                  onClick={() => { onLogout(); setMenuOpen(false); }}
+                  className="block w-full text-left px-4 py-2.5 text-sm text-parchment/70 hover:bg-white/10 cursor-pointer"
+                >
+                  👤 {user.name} · Sign Out
+                </button>
+              ) : (
+                <button
+                  onClick={() => { onLogin(); setMenuOpen(false); }}
+                  className="block w-full text-left px-4 py-2.5 text-sm text-gold hover:bg-white/10 cursor-pointer"
+                >
+                  🔑 Sign In
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
